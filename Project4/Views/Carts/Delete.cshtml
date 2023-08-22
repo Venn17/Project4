@@ -1,0 +1,57 @@
+﻿@model Project4.Models.Carts
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Carts</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.ProductID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ProductID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.QuantityProduct)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.QuantityProduct)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ToppingID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ToppingID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.QuantityTopping)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.QuantityTopping)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UserID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SizeID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SizeID)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-default" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

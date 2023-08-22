@@ -1,0 +1,48 @@
+﻿@model Project4.Models.Historys
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Historys</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.UserID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CartID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CartID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Payment)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Payment)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CouponID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CouponID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
