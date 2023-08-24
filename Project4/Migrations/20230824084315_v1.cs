@@ -38,19 +38,6 @@ namespace Project4.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tblLocals",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_tblLocals", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "tblUsers",
                 columns: table => new
                 {
@@ -70,24 +57,27 @@ namespace Project4.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tblRestaurants",
+                name: "tblProducts",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: true),
-                    Quality = table.Column<float>(nullable: false),
-                    LocalID = table.Column<int>(nullable: false),
-                    LocalsId = table.Column<int>(nullable: true),
-                    Status = table.Column<bool>(nullable: false)
+                    Price = table.Column<int>(nullable: false),
+                    SalePrice = table.Column<int>(nullable: false),
+                    Image = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    Sold = table.Column<int>(nullable: false),
+                    CategoryID = table.Column<int>(nullable: false),
+                    CategoriesId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_tblRestaurants", x => x.Id);
+                    table.PrimaryKey("PK_tblProducts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_tblRestaurants_tblLocals_LocalsId",
-                        column: x => x.LocalsId,
-                        principalTable: "tblLocals",
+                        name: "FK_tblProducts_tblCategories_CategoriesId",
+                        column: x => x.CategoriesId,
+                        principalTable: "tblCategories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -108,40 +98,6 @@ namespace Project4.Migrations
                         name: "FK_tblLogined_tblUsers_UsersId",
                         column: x => x.UsersId,
                         principalTable: "tblUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "tblProducts",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(nullable: true),
-                    Price = table.Column<int>(nullable: false),
-                    SalePrice = table.Column<int>(nullable: false),
-                    Image = table.Column<string>(nullable: true),
-                    Description = table.Column<string>(nullable: true),
-                    Sold = table.Column<int>(nullable: false),
-                    RestaurantID = table.Column<int>(nullable: false),
-                    RestaurantsId = table.Column<int>(nullable: true),
-                    CategoryID = table.Column<int>(nullable: false),
-                    CategoriesId = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_tblProducts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_tblProducts_tblCategories_CategoriesId",
-                        column: x => x.CategoriesId,
-                        principalTable: "tblCategories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_tblProducts_tblRestaurants_RestaurantsId",
-                        column: x => x.RestaurantsId,
-                        principalTable: "tblRestaurants",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -319,16 +275,6 @@ namespace Project4.Migrations
                 column: "CategoriesId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_tblProducts_RestaurantsId",
-                table: "tblProducts",
-                column: "RestaurantsId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_tblRestaurants_LocalsId",
-                table: "tblRestaurants",
-                column: "LocalsId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_tblSizes_ProductsId",
                 table: "tblSizes",
                 column: "ProductsId");
@@ -367,12 +313,6 @@ namespace Project4.Migrations
 
             migrationBuilder.DropTable(
                 name: "tblCategories");
-
-            migrationBuilder.DropTable(
-                name: "tblRestaurants");
-
-            migrationBuilder.DropTable(
-                name: "tblLocals");
         }
     }
 }

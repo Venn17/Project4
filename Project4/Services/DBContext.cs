@@ -17,10 +17,6 @@ namespace Project4.Services
         {
 
             // Set Idenity for primary key
-            modelBuilder.Entity<Restaurants>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            });
             modelBuilder.Entity<Categories>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
@@ -34,10 +30,6 @@ namespace Project4.Services
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
             });
             modelBuilder.Entity<Historys>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            });
-            modelBuilder.Entity<Locals>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
             });
@@ -68,11 +60,9 @@ namespace Project4.Services
         public DbSet<Products> Products { get; set; }
         public DbSet<Coupons> Coupons { get; set; }
         public DbSet<Historys> Historys { get; set; }
-        public DbSet<Locals> Locals { get; set; }
         public DbSet<Sizes> Sizes { get; set; }
         public DbSet<Toppings> Toppings { get; set; }
         public DbSet<Users> Users { get; set; }
-        public DbSet<Restaurants> Restaurants { get; set; }
         public DbSet<Logined> Logineds { get; set; }
     }
 }
