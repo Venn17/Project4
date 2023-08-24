@@ -125,19 +125,6 @@ namespace Project4.Migrations
                     b.ToTable("tblHistorys");
                 });
 
-            modelBuilder.Entity("Project4.Models.Locals", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("tblLocals");
-                });
-
             modelBuilder.Entity("Project4.Models.Logined", b =>
                 {
                     b.Property<int>("Id")
@@ -173,10 +160,6 @@ namespace Project4.Migrations
 
                     b.Property<int>("Price");
 
-                    b.Property<int>("RestaurantID");
-
-                    b.Property<int?>("RestaurantsId");
-
                     b.Property<int>("SalePrice");
 
                     b.Property<int>("Sold");
@@ -185,32 +168,7 @@ namespace Project4.Migrations
 
                     b.HasIndex("CategoriesId");
 
-                    b.HasIndex("RestaurantsId");
-
                     b.ToTable("tblProducts");
-                });
-
-            modelBuilder.Entity("Project4.Models.Restaurants", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("LocalID");
-
-                    b.Property<int?>("LocalsId");
-
-                    b.Property<string>("Name");
-
-                    b.Property<float>("Quality");
-
-                    b.Property<bool>("Status");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LocalsId");
-
-                    b.ToTable("tblRestaurants");
                 });
 
             modelBuilder.Entity("Project4.Models.Sizes", b =>
@@ -324,17 +282,6 @@ namespace Project4.Migrations
                     b.HasOne("Project4.Models.Categories", "Categories")
                         .WithMany()
                         .HasForeignKey("CategoriesId");
-
-                    b.HasOne("Project4.Models.Restaurants", "Restaurants")
-                        .WithMany()
-                        .HasForeignKey("RestaurantsId");
-                });
-
-            modelBuilder.Entity("Project4.Models.Restaurants", b =>
-                {
-                    b.HasOne("Project4.Models.Locals", "Locals")
-                        .WithMany()
-                        .HasForeignKey("LocalsId");
                 });
 
             modelBuilder.Entity("Project4.Models.Sizes", b =>
