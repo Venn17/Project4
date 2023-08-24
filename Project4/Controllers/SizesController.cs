@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Project4.Models;
 using Project4.Services;
 
 namespace Project4.Controllers
 {
-    public class SizesController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class SizesController : ControllerBase
     {
         private readonly DBContext _context;
 
@@ -19,130 +21,101 @@ namespace Project4.Controllers
             _context = context;
         }
 
-        // GET: Sizes
-        public async Task<IActionResult> Index()
+        // GET: api/Sizes
+        [HttpGet]
+        public IEnumerable<Sizes> GetSizes()
         {
-            return View(await _context.Sizes.ToListAsync());
+            return _context.Sizes;
         }
 
-        // GET: Sizes/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: api/Sizes/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetSizes([FromRoute] int id)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
-            }
-
-            var sizes = await _context.Sizes
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (sizes == null)
-            {
-                return NotFound();
-            }
-
-            return View(sizes);
-        }
-
-        // GET: Sizes/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Sizes/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,ProductID")] Sizes sizes)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(sizes);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(sizes);
-        }
-
-        // GET: Sizes/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
             var sizes = await _context.Sizes.FindAsync(id);
+
             if (sizes == null)
             {
                 return NotFound();
             }
-            return View(sizes);
+
+            return Ok(sizes);
         }
 
-        // POST: Sizes/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,ProductID")] Sizes sizes)
+        // PUT: api/Sizes/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutSizes([FromRoute] int id, [FromBody] Sizes sizes)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (id != sizes.Id)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            if (ModelState.IsValid)
+            _context.Entry(sizes).State = EntityState.Modified;
+
+            try
             {
-                try
-                {
-                    _context.Update(sizes);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SizesExists(sizes.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                await _context.SaveChangesAsync();
             }
-            return View(sizes);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!SizesExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
-        // GET: Sizes/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // POST: api/Sizes
+        [HttpPost]
+        public async Task<IActionResult> PostSizes([FromBody] Sizes sizes)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
-            var sizes = await _context.Sizes
-                .FirstOrDefaultAsync(m => m.Id == id);
+            _context.Sizes.Add(sizes);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetSizes", new { id = sizes.Id }, sizes);
+        }
+
+        // DELETE: api/Sizes/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteSizes([FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var sizes = await _context.Sizes.FindAsync(id);
             if (sizes == null)
             {
                 return NotFound();
             }
 
-            return View(sizes);
-        }
-
-        // POST: Sizes/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var sizes = await _context.Sizes.FindAsync(id);
             _context.Sizes.Remove(sizes);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return Ok(sizes);
         }
 
         private bool SizesExists(int id)

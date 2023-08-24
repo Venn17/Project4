@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Project4.Models;
 using Project4.Services;
 
 namespace Project4.Controllers
 {
-    public class ToppingsController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ToppingsController : ControllerBase
     {
         private readonly DBContext _context;
 
@@ -19,130 +21,101 @@ namespace Project4.Controllers
             _context = context;
         }
 
-        // GET: Toppings
-        public async Task<IActionResult> Index()
+        // GET: api/Toppings
+        [HttpGet]
+        public IEnumerable<Toppings> GetToppings()
         {
-            return View(await _context.Toppings.ToListAsync());
+            return _context.Toppings;
         }
 
-        // GET: Toppings/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: api/Toppings/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetToppings([FromRoute] int id)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
-            }
-
-            var toppings = await _context.Toppings
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (toppings == null)
-            {
-                return NotFound();
-            }
-
-            return View(toppings);
-        }
-
-        // GET: Toppings/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Toppings/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,ProductID,Status")] Toppings toppings)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(toppings);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(toppings);
-        }
-
-        // GET: Toppings/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
             var toppings = await _context.Toppings.FindAsync(id);
+
             if (toppings == null)
             {
                 return NotFound();
             }
-            return View(toppings);
+
+            return Ok(toppings);
         }
 
-        // POST: Toppings/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,ProductID,Status")] Toppings toppings)
+        // PUT: api/Toppings/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutToppings([FromRoute] int id, [FromBody] Toppings toppings)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (id != toppings.Id)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            if (ModelState.IsValid)
+            _context.Entry(toppings).State = EntityState.Modified;
+
+            try
             {
-                try
-                {
-                    _context.Update(toppings);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ToppingsExists(toppings.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                await _context.SaveChangesAsync();
             }
-            return View(toppings);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ToppingsExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
-        // GET: Toppings/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // POST: api/Toppings
+        [HttpPost]
+        public async Task<IActionResult> PostToppings([FromBody] Toppings toppings)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
-            var toppings = await _context.Toppings
-                .FirstOrDefaultAsync(m => m.Id == id);
+            _context.Toppings.Add(toppings);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetToppings", new { id = toppings.Id }, toppings);
+        }
+
+        // DELETE: api/Toppings/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteToppings([FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var toppings = await _context.Toppings.FindAsync(id);
             if (toppings == null)
             {
                 return NotFound();
             }
 
-            return View(toppings);
-        }
-
-        // POST: Toppings/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var toppings = await _context.Toppings.FindAsync(id);
             _context.Toppings.Remove(toppings);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return Ok(toppings);
         }
 
         private bool ToppingsExists(int id)

@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Project4.Models;
 using Project4.Services;
 
 namespace Project4.Controllers
 {
-    public class LoginedsController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class LoginedsController : ControllerBase
     {
         private readonly DBContext _context;
 
@@ -19,130 +21,101 @@ namespace Project4.Controllers
             _context = context;
         }
 
-        // GET: Logineds
-        public async Task<IActionResult> Index()
+        // GET: api/Logineds
+        [HttpGet]
+        public IEnumerable<Logined> GetLogineds()
         {
-            return View(await _context.Logineds.ToListAsync());
+            return _context.Logineds;
         }
 
-        // GET: Logineds/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: api/Logineds/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetLogined([FromRoute] int id)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
-            }
-
-            var logined = await _context.Logineds
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (logined == null)
-            {
-                return NotFound();
-            }
-
-            return View(logined);
-        }
-
-        // GET: Logineds/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Logineds/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserID")] Logined logined)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(logined);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(logined);
-        }
-
-        // GET: Logineds/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
             var logined = await _context.Logineds.FindAsync(id);
+
             if (logined == null)
             {
                 return NotFound();
             }
-            return View(logined);
+
+            return Ok(logined);
         }
 
-        // POST: Logineds/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserID")] Logined logined)
+        // PUT: api/Logineds/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutLogined([FromRoute] int id, [FromBody] Logined logined)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (id != logined.Id)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            if (ModelState.IsValid)
+            _context.Entry(logined).State = EntityState.Modified;
+
+            try
             {
-                try
-                {
-                    _context.Update(logined);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!LoginedExists(logined.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                await _context.SaveChangesAsync();
             }
-            return View(logined);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!LoginedExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
-        // GET: Logineds/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // POST: api/Logineds
+        [HttpPost]
+        public async Task<IActionResult> PostLogined([FromBody] Logined logined)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
-            var logined = await _context.Logineds
-                .FirstOrDefaultAsync(m => m.Id == id);
+            _context.Logineds.Add(logined);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetLogined", new { id = logined.Id }, logined);
+        }
+
+        // DELETE: api/Logineds/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteLogined([FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var logined = await _context.Logineds.FindAsync(id);
             if (logined == null)
             {
                 return NotFound();
             }
 
-            return View(logined);
-        }
-
-        // POST: Logineds/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var logined = await _context.Logineds.FindAsync(id);
             _context.Logineds.Remove(logined);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return Ok(logined);
         }
 
         private bool LoginedExists(int id)

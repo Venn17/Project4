@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Project4.Models;
 using Project4.Services;
 
 namespace Project4.Controllers
 {
-    public class CategoriesController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CategoriesController : ControllerBase
     {
         private readonly DBContext _context;
 
@@ -19,130 +21,121 @@ namespace Project4.Controllers
             _context = context;
         }
 
-        // GET: Categories
-        public async Task<IActionResult> Index()
+        // GET: api/Categories
+        [HttpGet]
+        public IEnumerable<Categories> GetCategories()
         {
-            return View(await _context.Categories.ToListAsync());
+            return _context.Categories;
         }
 
-        // GET: Categories/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: api/Categories/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCategories([FromRoute] int id)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
-            }
-
-            var categories = await _context.Categories
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (categories == null)
-            {
-                return NotFound();
-            }
-
-            return View(categories);
-        }
-
-        // GET: Categories/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Categories/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Status")] Categories categories)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(categories);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(categories);
-        }
-
-        // GET: Categories/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
             var categories = await _context.Categories.FindAsync(id);
+
             if (categories == null)
             {
                 return NotFound();
             }
-            return View(categories);
+
+            return Ok(categories);
         }
 
-        // POST: Categories/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Status")] Categories categories)
+        [HttpGet]
+        [Route("search")]
+        public async Task<IActionResult> GetCategoriesByName(string search)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var categories = await _context.Categories.ToListAsync();
+            var data = categories.FindAll(x => x.Name.ToLower().Contains(search.ToLower()));
+
+            if (categories == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(data);
+        }
+
+        // PUT: api/Categories/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutCategories([FromRoute] int id, [FromBody] Categories categories)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (id != categories.Id)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            if (ModelState.IsValid)
+            _context.Entry(categories).State = EntityState.Modified;
+
+            try
             {
-                try
-                {
-                    _context.Update(categories);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CategoriesExists(categories.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                await _context.SaveChangesAsync();
             }
-            return View(categories);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CategoriesExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
-        // GET: Categories/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // POST: api/Categories
+        [HttpPost]
+        public async Task<IActionResult> PostCategories([FromBody] Categories categories)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
-            var categories = await _context.Categories
-                .FirstOrDefaultAsync(m => m.Id == id);
+            _context.Categories.Add(categories);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetCategories", new { id = categories.Id }, categories);
+        }
+
+        // DELETE: api/Categories/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCategories([FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var categories = await _context.Categories.FindAsync(id);
             if (categories == null)
             {
                 return NotFound();
             }
 
-            return View(categories);
-        }
-
-        // POST: Categories/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var categories = await _context.Categories.FindAsync(id);
             _context.Categories.Remove(categories);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return Ok(categories);
         }
 
         private bool CategoriesExists(int id)

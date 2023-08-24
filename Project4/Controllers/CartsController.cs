@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Project4.Models;
 using Project4.Services;
 
 namespace Project4.Controllers
 {
-    public class CartsController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CartsController : ControllerBase
     {
         private readonly DBContext _context;
 
@@ -19,130 +21,101 @@ namespace Project4.Controllers
             _context = context;
         }
 
-        // GET: Carts
-        public async Task<IActionResult> Index()
+        // GET: api/Carts
+        [HttpGet]
+        public IEnumerable<Carts> GetCarts()
         {
-            return View(await _context.Carts.ToListAsync());
+            return _context.Carts;
         }
 
-        // GET: Carts/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: api/Carts/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCarts([FromRoute] int id)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
-            }
-
-            var carts = await _context.Carts
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (carts == null)
-            {
-                return NotFound();
-            }
-
-            return View(carts);
-        }
-
-        // GET: Carts/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Carts/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ProductID,QuantityProduct,ToppingID,QuantityTopping,UserID,SizeID")] Carts carts)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(carts);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(carts);
-        }
-
-        // GET: Carts/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
             var carts = await _context.Carts.FindAsync(id);
+
             if (carts == null)
             {
                 return NotFound();
             }
-            return View(carts);
+
+            return Ok(carts);
         }
 
-        // POST: Carts/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ProductID,QuantityProduct,ToppingID,QuantityTopping,UserID,SizeID")] Carts carts)
+        // PUT: api/Carts/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutCarts([FromRoute] int id, [FromBody] Carts carts)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (id != carts.Id)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            if (ModelState.IsValid)
+            _context.Entry(carts).State = EntityState.Modified;
+
+            try
             {
-                try
-                {
-                    _context.Update(carts);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CartsExists(carts.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                await _context.SaveChangesAsync();
             }
-            return View(carts);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CartsExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
-        // GET: Carts/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // POST: api/Carts
+        [HttpPost]
+        public async Task<IActionResult> PostCarts([FromBody] Carts carts)
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
-            var carts = await _context.Carts
-                .FirstOrDefaultAsync(m => m.Id == id);
+            _context.Carts.Add(carts);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetCarts", new { id = carts.Id }, carts);
+        }
+
+        // DELETE: api/Carts/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCarts([FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var carts = await _context.Carts.FindAsync(id);
             if (carts == null)
             {
                 return NotFound();
             }
 
-            return View(carts);
-        }
-
-        // POST: Carts/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var carts = await _context.Carts.FindAsync(id);
             _context.Carts.Remove(carts);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return Ok(carts);
         }
 
         private bool CartsExists(int id)
