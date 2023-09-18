@@ -132,6 +132,7 @@ namespace Project4.Migrations
                     Name = table.Column<string>(nullable: true),
                     ProductID = table.Column<int>(nullable: false),
                     ProductsId = table.Column<int>(nullable: true),
+                    Price = table.Column<int>(nullable: false),
                     Status = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>

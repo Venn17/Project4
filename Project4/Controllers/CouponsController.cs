@@ -117,6 +117,26 @@ namespace Project4.Controllers
 
             return Ok(coupons);
         }
+        [HttpGet]
+        [Route("search")]
+        public async Task<IActionResult> GetCouponByName(string search)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var c = await _context.Coupons.ToListAsync();
+            var data = c.FindAll(x => x.Name.ToLower().Contains(search.ToLower()));
+
+            if (c == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(data);
+        }
+
 
         private bool CouponsExists(int id)
         {

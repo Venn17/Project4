@@ -198,6 +198,8 @@ namespace Project4.Migrations
 
                     b.Property<string>("Name");
 
+                    b.Property<int>("Price");
+
                     b.Property<int>("ProductID");
 
                     b.Property<int?>("ProductsId");

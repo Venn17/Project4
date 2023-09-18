@@ -36,15 +36,13 @@ namespace Project4.Controllers
             {
                 return BadRequest(ModelState);
             }
-
-            var logined = await _context.Logineds.FindAsync(id);
-
-            if (logined == null)
+            var user = await _context.Users.Where(x => x.Id == id).FirstOrDefaultAsync();
+            if (user == null)
             {
                 return NotFound();
             }
 
-            return Ok(logined);
+            return Ok(user);
         }
 
         // PUT: api/Logineds/5
@@ -115,6 +113,22 @@ namespace Project4.Controllers
             _context.Logineds.Remove(logined);
             await _context.SaveChangesAsync();
 
+            return Ok(logined);
+        }
+
+        [Route("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var logined = await _context.Logineds.ToListAsync();
+            if (logined == null)
+            {
+                return NotFound();
+            }
+            foreach (var item in logined)
+            {
+                _context.Logineds.Remove(item);
+            }
+            await _context.SaveChangesAsync();
             return Ok(logined);
         }
 

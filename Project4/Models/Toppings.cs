@@ -15,6 +15,7 @@ namespace Project4.Models
         public string Name { get; set; }
         public int ProductID { get; set; }
         public Products Products { get; set; }
+        public int Price { get; set; }
         public bool Status { get; set; }
     }
 }

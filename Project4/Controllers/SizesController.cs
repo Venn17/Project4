@@ -118,6 +118,67 @@ namespace Project4.Controllers
             return Ok(sizes);
         }
 
+        [HttpGet]
+        [Route("getProduct")]
+        public async Task<IActionResult> GetSizesByProduct([FromRoute] int productID)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var sizes = await _context.Sizes.ToListAsync();
+            var data = sizes.FindAll(x => x.ProductID == productID);
+
+            if (sizes == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("search")]
+        public async Task<IActionResult> GetSizesByProName(string search, int productId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var c = await _context.Sizes.ToListAsync();
+            var data = c.ToList();
+            if (search == "" || search == null)
+            {
+                if (productId == 0)
+                {
+
+                }
+                else
+                {
+                    data = c.FindAll(x => x.ProductID == productId).ToList();
+                }
+            }
+            else
+            {
+                if (productId == 0)
+                {
+                    data = c.FindAll(x => x.Name.ToLower().Contains(search.ToLower())).ToList();
+                }
+                else
+                {
+                    data = c.FindAll(x => x.Name.ToLower().Contains(search.ToLower()) & x.ProductID == productId).ToList();
+                }
+            }
+            if (c == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(data);
+        }
+
         private bool SizesExists(int id)
         {
             return _context.Sizes.Any(e => e.Id == id);

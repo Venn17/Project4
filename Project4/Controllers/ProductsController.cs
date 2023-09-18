@@ -118,6 +118,79 @@ namespace Project4.Controllers
             return Ok(products);
         }
 
+        [HttpGet]
+        [Route("search")]
+        public async Task<IActionResult> GetProductByName(string search)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var c = await _context.Products.ToListAsync();
+            var data = c.FindAll(x => x.Name.ToLower().Contains(search.ToLower()));
+
+            if (c == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("sort")]
+        public async Task<IActionResult> GetCouponByName(string sort,string type)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var c = await _context.Products.ToListAsync();
+            var data = c.ToList();
+            if(sort == "salePrice")
+            {
+                if(type == "ASC")
+                {
+                    data = c.OrderBy(x => x.SalePrice).ToList();
+                }
+                else
+                {
+                    data = c.OrderByDescending(x => x.SalePrice).ToList();
+                }
+            }
+            if(sort == "sold")
+            {
+                if (type == "ASC")
+                {
+                    data = c.OrderBy(x => x.Sold).ToList();
+                }
+                else
+                {
+                    data = c.OrderByDescending(x => x.Sold).ToList();
+                }
+            }
+            if (sort == "name")
+            {
+                if (type == "ASC")
+                {
+                    data = c.OrderBy(x => x.Name).ToList();
+                }
+                else
+                {
+                    data = c.OrderByDescending(x => x.Name).ToList();
+                }
+            }
+
+            if (c == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(data);
+        }
+
         private bool ProductsExists(int id)
         {
             return _context.Products.Any(e => e.Id == id);

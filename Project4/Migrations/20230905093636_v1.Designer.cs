@@ -10,7 +10,7 @@ using Project4.Services;
 namespace Project4.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20230824084315_v1")]
+    [Migration("20230905093636_v1")]
     partial class v1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -199,6 +199,8 @@ namespace Project4.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name");
+
+                    b.Property<int>("Price");
 
                     b.Property<int>("ProductID");
 

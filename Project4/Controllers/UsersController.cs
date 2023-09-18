@@ -118,6 +118,29 @@ namespace Project4.Controllers
             return Ok(users);
         }
 
+        [HttpPost]
+        [Route("checkLogin")]
+        public async Task<IActionResult> CheckLogin([FromBody] LoginModel login)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var data = await _context.Users.ToListAsync();
+            foreach (var item in data)
+            {
+                if(item.Email == login.Email && item.Password == login.Password)
+                {
+                    Logined logined = new Logined();
+                    logined.UserID = item.Id;
+                    _context.Logineds.Add(logined);
+                    await _context.SaveChangesAsync();
+                    return Ok();
+                }
+            }
+            return BadRequest();
+        }
+
         private bool UsersExists(int id)
         {
             return _context.Users.Any(e => e.Id == id);
